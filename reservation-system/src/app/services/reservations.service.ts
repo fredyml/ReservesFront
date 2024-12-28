@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -25,4 +26,15 @@ export class ReservationsService {
     return this.http.delete<any>(url);
   }
   
+  getFilteredReservations(filters: { [key: string]: any }): Observable<any[]> {
+    let params = new HttpParams();
+    
+    for (const key in filters) {
+      if (filters[key] !== null && filters[key] !== undefined && filters[key] !== '') {
+        params = params.set(key, filters[key]);
+      }
+    }
+  
+    return this.http.get<any[]>(this.apiUrl, { params });
+  }
 } 

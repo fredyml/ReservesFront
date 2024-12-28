@@ -1,25 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'; 
 import { HttpClientModule } from '@angular/common/http';
 import { ReservationsService } from '../../services/reservations.service';
 
 @Component({
   selector: 'app-reservations',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, HttpClientModule], 
   providers: [ReservationsService],
   templateUrl: './reservations.component.html',
   styleUrls: ['./reservations.component.css'],
 })
+
 export class ReservationsComponent implements OnInit {
   reservationForm: FormGroup;
   reservations: any[] = [];
+  filteredReservations: any[] = [];
   isEditing = false;
   selectedReservationId: number | null = null;
-  errorMessages: string[] = []; // Para almacenar mensajes de error
-  showModal: boolean = false; // Controla la visibilidad del modal
+
+  filters = {
+    reservationId: '',
+    spaceName: '',
+    userName: '',
+    startDate: '',
+    endDate: '',
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -38,19 +46,43 @@ export class ReservationsComponent implements OnInit {
   }
 
   loadReservations(): void {
-    this.clearErrors();
     this.reservationsService.getReservations().subscribe(
       (data) => {
         this.reservations = data;
+        this.filteredReservations = data;
       },
       (error) => {
-        this.handleErrors(['Error al cargar las reservas.']);
+        console.error('Error al cargar las reservas:', error);
       }
     );
   }
 
+  applyFilters(): void {
+    this.filteredReservations = this.reservations.filter((reservation) => {
+      return (
+        (!this.filters.reservationId ||
+          reservation.reservationId
+            .toString()
+            .includes(this.filters.reservationId)) &&
+        (!this.filters.spaceName ||
+          reservation.spaceName
+            .toLowerCase()
+            .includes(this.filters.spaceName.toLowerCase())) &&
+        (!this.filters.userName ||
+          reservation.userName
+            .toLowerCase()
+            .includes(this.filters.userName.toLowerCase())) &&
+        (!this.filters.startDate ||
+          new Date(reservation.startDate).toDateString() ===
+            new Date(this.filters.startDate).toDateString()) &&
+        (!this.filters.endDate ||
+          new Date(reservation.endDate).toDateString() ===
+            new Date(this.filters.endDate).toDateString())
+      );
+    });
+  }
+
   onSubmit(): void {
-    this.clearErrors();
     if (this.isEditing && this.selectedReservationId !== null) {
       this.updateReservation(this.selectedReservationId, this.reservationForm.value);
     } else {
@@ -66,8 +98,7 @@ export class ReservationsComponent implements OnInit {
         this.reservationForm.reset();
       },
       (error) => {
-        const messages = (error.error?.details || '').split(','); // Dividir mensajes por comas
-        this.handleErrors(messages);
+        console.error('Error al crear la reserva:', error);
       }
     );
   }
@@ -79,7 +110,6 @@ export class ReservationsComponent implements OnInit {
   }
 
   deleteReservation(id: number): void {
-    this.clearErrors();
     if (confirm('¿Está seguro de que desea cancelar esta reserva?')) {
       this.reservationsService.deleteReservation(id).subscribe(
         () => {
@@ -87,20 +117,10 @@ export class ReservationsComponent implements OnInit {
           this.loadReservations();
         },
         (error) => {
-          const messages = (error.error?.details || '').split(','); 
-          this.handleErrors(messages);
+          console.error('Error al cancelar la reserva:', error);
         }
       );
     }
   }
-
-  handleErrors(messages: string[]): void {
-    this.errorMessages = messages.map((msg) => msg.trim()); // Limpiar espacios
-    this.showModal = true; // Mostrar el modal
-  }
-
-  clearErrors(): void {
-    this.errorMessages = [];
-    this.showModal = false;
-  }
 }
+
