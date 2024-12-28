@@ -43,7 +43,7 @@ Este proyecto es una aplicación web diseñada para gestionar reservas de espaci
 
 #### `reservations.component.ts`
 - Lógica principal de la aplicación.
-- Manejo de eventos como creación, edición y eliminación de reservas.
+- Manejo de eventos como creación y eliminación de reservas.
 
 #### `reservations.component.html`
 - Vista principal con la tabla de reservas, botones de acción y filtros.
