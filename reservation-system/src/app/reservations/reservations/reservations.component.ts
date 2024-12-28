@@ -16,7 +16,7 @@ import { ReservationsService } from '../../services/reservations.service';
 export class ReservationsComponent implements OnInit {
   reservationForm: FormGroup;
   reservations: any[] = [];
-  filteredReservations: any[] = []; // Lista para manejar datos filtrados
+  filteredReservations: any[] = []; 
   filters: any = {
     reservationId: '',
     spaceName: '',
@@ -28,7 +28,9 @@ export class ReservationsComponent implements OnInit {
   selectedReservationId: number | null = null;
   showModal = false;
   errorMessages: string[] = [];
-
+  spaces: any[] = [];
+  users: any[] = [];
+  
   constructor(
     private fb: FormBuilder,
     private reservationsService: ReservationsService
@@ -43,13 +45,37 @@ export class ReservationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadReservations();
+    this.loadAvailableSpaces();
+    this.loadAvailableUsers();
+  }
+
+  loadAvailableSpaces(): void {
+    this.reservationsService.getAvailableSpaces().subscribe(
+      (data) => {
+        this.spaces = data;
+      },
+      (error) => {
+        console.error('Error al cargar espacios disponibles:', error);
+      }
+    );
+  }
+  
+  loadAvailableUsers(): void {
+    this.reservationsService.getAvailableUsers().subscribe(
+      (data) => {
+        this.users = data;
+      },
+      (error) => {
+        console.error('Error al cargar usuarios disponibles:', error);
+      }
+    );
   }
 
   loadReservations(): void {
     this.reservationsService.getReservations().subscribe(
       (data) => {
         this.reservations = data;
-        this.applyFilters(); // Aplicar filtros automáticamente después de cargar
+        this.applyFilters(); 
       },
       (error) => {
         console.error('Error al cargar las reservas:', error);

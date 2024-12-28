@@ -85,22 +85,22 @@
       <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="spaceId">Espacio</label>
-          <input
-            id="spaceId"
-            formControlName="spaceId"
-            type="number"
-            placeholder="Ingrese ID del espacio"
-          />
+          <select id="spaceId" formControlName="spaceId">
+            <option value="" disabled selected>Seleccione un espacio</option>
+            <option *ngFor="let space of spaces" [value]="space.spaceId">
+              {{ space.name }} - {{ space.description }}
+            </option>
+          </select>
         </div>
-
+        
         <div class="form-group">
           <label for="userId">Usuario</label>
-          <input
-            id="userId"
-            formControlName="userId"
-            type="number"
-            placeholder="Ingrese ID del usuario"
-          />
+          <select id="userId" formControlName="userId">
+            <option value="" disabled selected>Seleccione un usuario</option>
+            <option *ngFor="let user of users" [value]="user.userId">
+              {{ user.name }} ({{ user.email }})
+            </option>
+          </select>
         </div>
 
         <div class="form-group">

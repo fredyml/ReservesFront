@@ -7,16 +7,15 @@ import { HttpParams } from '@angular/common/http';
   providedIn: 'root',
 })
 export class ReservationsService {
-  private apiUrl = 'https://localhost:44329/api/Reservations';
+  private apiUrl = 'https://localhost:44329/api/ReservationManagement';
 
   constructor(private http: HttpClient) {}
 
-  // Obtener reservas
   getReservations(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
-  // Crear una nueva reserva
+
   createReservation(reservation: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, reservation);
   }
@@ -28,7 +27,7 @@ export class ReservationsService {
   
   getFilteredReservations(filters: { [key: string]: any }): Observable<any[]> {
     let params = new HttpParams();
-    
+
     for (const key in filters) {
       if (filters[key] !== null && filters[key] !== undefined && filters[key] !== '') {
         params = params.set(key, filters[key]);
@@ -37,4 +36,12 @@ export class ReservationsService {
   
     return this.http.get<any[]>(this.apiUrl, { params });
   }
+
+getAvailableSpaces(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/available-spaces`);
+}
+
+getAvailableUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/available-users`);
+}
 } 
