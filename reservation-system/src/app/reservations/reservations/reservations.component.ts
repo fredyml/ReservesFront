@@ -5,7 +5,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ReservationsService } from '../../services/reservations.service';
 
-
 @Component({
   selector: 'app-reservations',
   standalone: true,
@@ -13,12 +12,14 @@ import { ReservationsService } from '../../services/reservations.service';
   providers: [ReservationsService],
   templateUrl: './reservations.component.html',
   styleUrls: ['./reservations.component.css'],
-}) 
-export class ReservationsComponent implements OnInit { 
+})
+export class ReservationsComponent implements OnInit {
   reservationForm: FormGroup;
   reservations: any[] = [];
   isEditing = false;
   selectedReservationId: number | null = null;
+  errorMessages: string[] = []; // Para almacenar mensajes de error
+  showModal: boolean = false; // Controla la visibilidad del modal
 
   constructor(
     private fb: FormBuilder,
@@ -37,17 +38,19 @@ export class ReservationsComponent implements OnInit {
   }
 
   loadReservations(): void {
+    this.clearErrors();
     this.reservationsService.getReservations().subscribe(
       (data) => {
         this.reservations = data;
       },
       (error) => {
-        console.error('Error al cargar las reservas:', error);
+        this.handleErrors(['Error al cargar las reservas.']);
       }
     );
   }
 
   onSubmit(): void {
+    this.clearErrors();
     if (this.isEditing && this.selectedReservationId !== null) {
       this.updateReservation(this.selectedReservationId, this.reservationForm.value);
     } else {
@@ -59,34 +62,45 @@ export class ReservationsComponent implements OnInit {
     this.reservationsService.createReservation(reservation).subscribe(
       (response) => {
         console.log('Reserva creada exitosamente:', response);
-        this.loadReservations(); 
-        this.reservationForm.reset(); 
+        this.loadReservations();
+        this.reservationForm.reset();
       },
       (error) => {
-        console.error('Error al crear la reserva:', error);
+        const messages = (error.error?.details || '').split(','); // Dividir mensajes por comas
+        this.handleErrors(messages);
       }
     );
   }
-  
 
   updateReservation(id: number, reservation: any): void {
     console.log('Actualizar reserva (función no implementada):', id, reservation);
     this.isEditing = false;
-    this.reservationForm.reset(); 
-  }
-
-  editReservation(reservation: any): void {
-    this.isEditing = true;
-    this.selectedReservationId = reservation.reservationId;
-    this.reservationForm.patchValue(reservation);
+    this.reservationForm.reset();
   }
 
   deleteReservation(id: number): void {
-    console.log('Eliminar reserva (función no implementada):', id);
+    this.clearErrors();
+    if (confirm('¿Está seguro de que desea cancelar esta reserva?')) {
+      this.reservationsService.deleteReservation(id).subscribe(
+        () => {
+          console.log(`Reserva con ID ${id} cancelada exitosamente`);
+          this.loadReservations();
+        },
+        (error) => {
+          const messages = (error.error?.details || '').split(','); 
+          this.handleErrors(messages);
+        }
+      );
+    }
   }
 
-  cancelEdit(): void {
-    this.isEditing = false;
-    this.reservationForm.reset();
+  handleErrors(messages: string[]): void {
+    this.errorMessages = messages.map((msg) => msg.trim()); // Limpiar espacios
+    this.showModal = true; // Mostrar el modal
+  }
+
+  clearErrors(): void {
+    this.errorMessages = [];
+    this.showModal = false;
   }
 }

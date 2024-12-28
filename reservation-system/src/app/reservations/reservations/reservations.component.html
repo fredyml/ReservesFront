@@ -1,67 +1,96 @@
 <div class="reservations-container">
-    <h1>Gestión de Reservas</h1>
-  
-    <div class="grid-container">
-      <!-- Tabla para mostrar las reservas -->
-      <div class="table-wrapper">
-        <table class="reservations-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Espacio</th>
-              <th>Usuario</th>
-              <th>Inicio</th>
-              <th>Fin</th> 
-              <th>Acciones</th> 
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let reservation of reservations">
-              <td>{{ reservation.reservationId }}</td>
-              <td>{{ reservation.spaceName }}</td>
-              <td>{{ reservation.userName }}</td>
-              <td>{{ reservation.startDate | date: 'short' }}</td>
-              <td>{{ reservation.endDate | date: 'short' }}</td>
-              <td>
-                <button (click)="deleteReservation(reservation.id)" class="btn btn-delete">Eliminar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- Formulario para crear/editar reservas -->
-      <div class="form-card">
-        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
-          <h2>{{ isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva' }}</h2>
-  
-          <div class="form-group">
-            <label for="spaceId">Espacio</label>
-            <input id="spaceId" formControlName="spaceId" type="number" placeholder="Ingrese ID del espacio" />
-          </div>
-  
-          <div class="form-group">
-            <label for="userId">Usuario</label>
-            <input id="userId" formControlName="userId" type="number" placeholder="Ingrese ID del usuario" />
-          </div>
-  
-          <div class="form-group">
-            <label for="startDate">Fecha y Hora de Inicio</label>
-            <input id="startDate" formControlName="startDate" type="datetime-local" />
-          </div>
-  
-          <div class="form-group">
-            <label for="endDate">Fecha y Hora de Fin</label>
-            <input id="endDate" formControlName="endDate" type="datetime-local" />
-          </div>
-  
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" [disabled]="reservationForm.invalid">
-              {{ isEditing ? 'Guardar Cambios' : 'Crear Reserva' }}
-            </button>
-            <button type="button" class="btn btn-secondary" *ngIf="isEditing" (click)="cancelEdit()">Cancelar</button>
-          </div>
-        </form>
-      </div>
+  <h1>Gestión de Reservas</h1>
+
+  <!-- Modal para mensajes de error -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <h2>Errores</h2>
+      <ul>
+        <li *ngFor="let error of errorMessages">{{ error }}</li>
+      </ul>
+      <button class="btn btn-close" (click)="clearErrors()">Cerrar</button>
     </div>
   </div>
+
+  <div class="grid-container">
+    <!-- Tabla para mostrar las reservas -->
+    <div class="table-wrapper">
+      <table class="reservations-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Espacio</th>
+            <th>Usuario</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reservation of reservations">
+            <td>{{ reservation.reservationId }}</td>
+            <td>{{ reservation.spaceName }}</td>
+            <td>{{ reservation.userName }}</td>
+            <td>{{ reservation.startDate | date: 'short' }}</td>
+            <td>{{ reservation.endDate | date: 'short' }}</td>
+            <td>
+              <button
+                (click)="deleteReservation(reservation.reservationId)"
+                class="btn btn-delete"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Formulario para crear/editar reservas -->
+    <div class="form-card">
+      <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+        <h2>{{ isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva' }}</h2>
+
+        <div class="form-group">
+          <label for="spaceId">Espacio</label>
+          <input
+            id="spaceId"
+            formControlName="spaceId"
+            type="number"
+            placeholder="Ingrese ID del espacio"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="userId">Usuario</label>
+          <input
+            id="userId"
+            formControlName="userId"
+            type="number"
+            placeholder="Ingrese ID del usuario"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="startDate">Fecha y Hora de Inicio</label>
+          <input id="startDate" formControlName="startDate" type="datetime-local" />
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Fecha y Hora de Fin</label>
+          <input id="endDate" formControlName="endDate" type="datetime-local" />
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="reservationForm.invalid"
+          >
+            {{ isEditing ? 'Guardar Cambios' : 'Crear Reserva' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
