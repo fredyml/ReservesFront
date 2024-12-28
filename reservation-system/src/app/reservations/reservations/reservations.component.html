@@ -1,83 +1,88 @@
 <div class="reservations-container">
-  <h1>Gestión de Reservas</h1>
+  <h1>Reservas</h1>
 
-  <div class="grid-container">
-    <!-- Tabla para mostrar las reservas con filtros integrados -->
-    <div class="table-wrapper">
-      <table class="reservations-table">
-        <thead>
-          <tr>
-            <th>
-              ID
-              <input
-                type="text"
-                placeholder="Buscar por ID"
-                [(ngModel)]="filters.reservationId"
-                (input)="applyFilters()"
-              />
-            </th>
-            <th>
-              Espacio
-              <input
-                type="text"
-                placeholder="Buscar por espacio"
-                [(ngModel)]="filters.spaceName"
-                (input)="applyFilters()"
-              />
-            </th>
-            <th>
-              Usuario
-              <input
-                type="text"
-                placeholder="Buscar por usuario"
-                [(ngModel)]="filters.userName"
-                (input)="applyFilters()"
-              />
-            </th>
-            <th>
-              Inicio
-              <input
-                type="date"
-                [(ngModel)]="filters.startDate"
-                (change)="applyFilters()"
-              />
-            </th>
-            <th>
-              Fin
-              <input
-                type="date"
-                [(ngModel)]="filters.endDate"
-                (change)="applyFilters()"
-              />
-            </th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let reservation of filteredReservations">
-            <td>{{ reservation.reservationId }}</td>
-            <td>{{ reservation.spaceName }}</td>
-            <td>{{ reservation.userName }}</td>
-            <td>{{ reservation.startDate | date: 'short' }}</td>
-            <td>{{ reservation.endDate | date: 'short' }}</td>
-            <td>
-              <button
-                (click)="deleteReservation(reservation.reservationId)"
-                class="btn btn-delete"
-              >
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="header-actions">
+    <button (click)="openModal()" class="btn-primary">Crear Reserva</button>
+  </div>
 
-    <!-- Formulario para crear/editar reservas -->
-    <div class="form-card">
-      <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+  <div class="table-wrapper">
+    <table class="reservations-table">
+      <thead>
+        <tr>
+          <th>
+            ID Reserva
+            <input
+              type="text"
+              [(ngModel)]="filters.reservationId"
+              (input)="applyFilters()"
+              placeholder="Filtrar por ID"
+            />
+          </th>
+          <th>
+            Espacio
+            <input
+              type="text"
+              [(ngModel)]="filters.spaceName"
+              (input)="applyFilters()"
+              placeholder="Filtrar por espacio"
+            />
+          </th>
+          <th>
+            Usuario
+            <input
+              type="text"
+              [(ngModel)]="filters.userName"
+              (input)="applyFilters()"
+              placeholder="Filtrar por usuario"
+            />
+          </th>
+          <th>
+            Fecha Inicio
+            <input
+              type="date"
+              [(ngModel)]="filters.startDate"
+              (input)="applyFilters()"
+            />
+          </th>
+          <th>
+            Fecha Fin
+            <input
+              type="date"
+              [(ngModel)]="filters.endDate"
+              (input)="applyFilters()"
+            />
+          </th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reservation of filteredReservations">
+          <td>{{ reservation.reservationId }}</td>
+          <td>{{ reservation.spaceName }}</td>
+          <td>{{ reservation.userName }}</td>
+          <td>{{ reservation.startDate | date: 'short' }}</td>
+          <td>{{ reservation.endDate | date: 'short' }}</td>
+          <td>
+            <button
+              (click)="deleteReservation(reservation.reservationId)"
+              class="btn-delete"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal de Crear/Editar Reserva -->
+  <div class="modal" [ngClass]="{ show: showModal }">
+    <div class="modal-content">
+      <div class="modal-header">
         <h2>{{ isEditing ? 'Editar Reserva' : 'Crear Nueva Reserva' }}</h2>
-
+        <button class="btn-close" (click)="closeModal()">×</button>
+      </div>
+      <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="spaceId">Espacio</label>
           <input
@@ -100,7 +105,11 @@
 
         <div class="form-group">
           <label for="startDate">Fecha y Hora de Inicio</label>
-          <input id="startDate" formControlName="startDate" type="datetime-local" />
+          <input
+            id="startDate"
+            formControlName="startDate"
+            type="datetime-local"
+          />
         </div>
 
         <div class="form-group">
@@ -108,8 +117,18 @@
           <input id="endDate" formControlName="endDate" type="datetime-local" />
         </div>
 
+        <div *ngIf="errorMessages.length > 0" class="error-container">
+          <div *ngFor="let error of errorMessages" class="error-message">
+            {{ error }}
+          </div>
+        </div>
+
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="reservationForm.invalid">
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="reservationForm.invalid"
+          >
             {{ isEditing ? 'Guardar Cambios' : 'Crear Reserva' }}
           </button>
         </div>
